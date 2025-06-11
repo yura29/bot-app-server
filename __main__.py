@@ -35,6 +35,8 @@ async def bot_webhook(request: Request):
 async def health_check():
     return {"status": "ok", "message": "Backend is running!"}
 
+print("LOADED __main__.py")
+print("app in locals:", 'app' in locals())
 
 if __name__ == "__main__":
     uvicorn.run(app, host=config.APP_HOST, port=config.APP_PORT)
