@@ -18,8 +18,8 @@ user_subscriptions: dict[int, list[str]] = {}
 class Config(BaseSettings):
     BOT_TOKEN: SecretStr
     
-    WEBAPP_URL: str = "https://you-festival-web.vercel.app" #client
-    WEBHOOK_URL: str = "https://you-festival-web.onrender.com" #server
+    WEBAPP_URL: str = "https://bot-app-client.vercel.app" #client
+    WEBHOOK_URL: str = "https://bot-app-server.onrender.com" #server
     WEBHOOK_PATH: str = "/webhook"
     
     APP_HOST: str = "localhost"
