@@ -75,8 +75,10 @@ async def track_command(message: Message) -> None:
     builder = InlineKeyboardBuilder()
     # Получаем уникальные названия групп из расписания
     group_names = sorted(list(set(event['description'] for event in FESTIVAL_PROGRAM)))
-    for i, group_name in enumerate(group_names):
-        builder.button(text=group_name, callback_data=f"select_group_{group_name}") # Изменил callback_data
+    group_name_to_index = {name: i for i, name in enumerate(group_names)} # Создаем маппинг
+    for group_name in group_names:
+        index = group_name_to_index[group_name]
+        builder.button(text=group_name, callback_data=f"select_group_{index}") # Используем индекс
     builder.adjust(2) # Размещаем по 2 кнопки в ряд
     await message.answer(
         "Выберите группу для отслеживания:",
@@ -85,7 +87,15 @@ async def track_command(message: Message) -> None:
 
 @router.callback_query(F.data.startswith('select_group_'))
 async def process_select_group_callback(callback_query: CallbackQuery) -> None:
-    group_name = callback_query.data.split('select_group_')[1]
+    # Получаем индекс группы из callback_data
+    group_index = int(callback_query.data.split('_')[-1])
+    group_names = sorted(list(set(event['description'] for event in FESTIVAL_PROGRAM)))
+    
+    if group_index >= len(group_names) or group_index < 0:
+        await callback_query.answer("Ошибка: Неверные данные группы.", show_alert=True)
+        return
+
+    group_name = group_names[group_index] # Получаем название группы по индексу
     user_id = callback_query.from_user.id
 
     # Проверяем, подписан ли пользователь уже на эту группу
@@ -99,7 +109,7 @@ async def process_select_group_callback(callback_query: CallbackQuery) -> None:
     interval_options = [10, 15, 20, 25, 30, 60] # Минуты
     builder = InlineKeyboardBuilder()
     for interval in interval_options:
-        builder.button(text=f"{interval} мин", callback_data=f"set_interval_{group_name}_{interval}")
+        builder.button(text=f"{interval} мин", callback_data=f"set_interval_{group_index}_{interval}") # Используем индекс
     builder.adjust(3)
     await callback_query.message.edit_text(
         f"Вы выбрали группу: {group_name}. Теперь выберите интервал уведомлений:",
@@ -109,8 +119,14 @@ async def process_select_group_callback(callback_query: CallbackQuery) -> None:
 @router.callback_query(F.data.startswith('set_interval_'))
 async def process_set_interval_callback(callback_query: CallbackQuery) -> None:
     parts = callback_query.data.split('_')
-    group_name = parts[2]
+    group_index = int(parts[2]) # Извлекаем индекс группы
     interval_minutes = int(parts[3])
+
+    group_names = sorted(list(set(event['description'] for event in FESTIVAL_PROGRAM)))
+    if group_index >= len(group_names) or group_index < 0:
+        await callback_query.answer("Ошибка: Неверные данные группы.", show_alert=True)
+        return
+    group_name = group_names[group_index] # Получаем название группы по индексу
     user_id = callback_query.from_user.id
 
     if user_id not in user_subscriptions:
