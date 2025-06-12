@@ -96,6 +96,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
     commands = [
         BotCommand(command="start", description="Запустить бота и получить расписание"),
         BotCommand(command="track", description="Отслеживать группу"),
+        BotCommand(command="stop_tracking", description="Остановить все отслеживания"),
     ]
     # Устанавливаем команды для бота
     await bot.set_my_commands(commands)

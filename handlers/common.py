@@ -32,6 +32,15 @@ async def start(message: Message) -> None:
 async def precheck(event: PreCheckoutQuery) -> None:
     await event.answer(True)
 
+@router.message(Command('stop_tracking'))
+async def stop_tracking_command(message: Message) -> None:
+    user_id = message.from_user.id
+    if user_id in user_subscriptions:
+        del user_subscriptions[user_id]
+        await message.answer("Все ваши подписки на отслеживание успешно отменены.")
+    else:
+        await message.answer("У вас нет активных подписок для отслеживания.")
+
 # Новая команда для отписки
 @router.message(Command('unsubscribe'))
 async def unsubscribe_command(message: Message) -> None:
