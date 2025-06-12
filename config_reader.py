@@ -12,8 +12,8 @@ from fastapi import FastAPI
 
 from data.festival_schedule import FESTIVAL_PROGRAM
 
-# Временное хранилище для подписок: {user_id: [group_name1, group_name2, ...]}
-user_subscriptions: dict[int, list[str]] = {}
+# Временное хранилище для подписок: {user_id: [(group_name1, interval_minutes1), (group_name2, interval_minutes2), ...]}
+user_subscriptions: dict[int, list[tuple[str, int]]] = {}
 
 class Config(BaseSettings):
     BOT_TOKEN: SecretStr
@@ -43,26 +43,41 @@ async def notification_scheduler():
         current_hour = now.hour
         current_minute = now.minute
 
-        for user_id, subscribed_groups in user_subscriptions.items():
-            for group_name in subscribed_groups:
+        # Пройдемся по всем пользователям и их подпискам
+        for user_id, subscriptions in user_subscriptions.items():
+            # Создадим копию списка подписок, чтобы безопасно изменять оригинал, если потребуется
+            subscriptions_copy = list(subscriptions) 
+
+            for group_name, interval_minutes in subscriptions_copy:
                 # Ищем событие, на которое подписан пользователь
                 event = next((e for e in FESTIVAL_PROGRAM if e["description"] == group_name), None)
                 
                 if event:
                     event_datetime = datetime.combine(event["date"], time(int(event["time"].split(":")[0]), int(event["time"].split(":")[1])))
                     
-                    # Убедимся, что событие еще не прошло
-                    if now < event_datetime or (now.date() == event_datetime.date() and now.time() < event_datetime.time()):
-                        # Создаем уникальный идентификатор для уведомления в эту минуту
-                        notification_id = (user_id, group_name, current_hour, current_minute)
+                    # Убедимся, что событие еще не прошло и находится в пределах интервала
+                    if now < event_datetime:
+                        # Проверяем, наступило ли время для уведомления с учетом интервала
+                        time_until_event = event_datetime - now
+                        
+                        # Если до события осталось меньше или равно интервалу и текущая минута кратна интервалу
+                        if time_until_event.total_seconds() <= interval_minutes * 60 and current_minute % interval_minutes == 0:
+                            # Создаем уникальный идентификатор для уведомления в эту минуту
+                            notification_id = (user_id, group_name, current_hour, current_minute)
 
-                        if notification_id not in sent_notifications:
-                            message = f"Бот: Статус для \"{group_name}\": Следующее выступление {event['date'].strftime('%d.%m')} в {event['time']}. (Тестовое сообщение) "
-                            try:
-                                await bot.send_message(chat_id=user_id, text=message)
-                                sent_notifications.add(notification_id)
-                            except Exception as e:
-                                pass # print(f"Ошибка при отправке уведомления пользователю {user_id}: {e}") # Закомментировано для удаления логов
+                            if notification_id not in sent_notifications:
+                                message = f"Бот: Скоро начнется \"{group_name}\"! Время: {event['time']}. (Тестовое сообщение) "
+                                try:
+                                    await bot.send_message(chat_id=user_id, text=message)
+                                    sent_notifications.add(notification_id)
+                                except Exception as e:
+                                    pass # print(f"Ошибка при отправке уведомления пользователю {user_id}: {e}") # Закомментировано для удаления логов
+                    elif now >= event_datetime + timedelta(minutes=10): # Например, через 10 минут после окончания
+                        # Если событие прошло, можно удалить подписку или просто перестать уведомлять
+                        # Для простоты, здесь просто перестаем уведомлять.
+                        # Если нужно автоматическое удаление, потребуется более сложная логика,
+                        # чтобы избежать изменения списка во время итерации.
+                        pass
         
         await asyncio.sleep(60) # Проверяем расписание каждую минуту (возвращено с 1 секунды)
 
