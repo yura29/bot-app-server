@@ -1,5 +1,5 @@
 from aiogram import Router
-from .handlers import common
+from . import common
 
 
 def setup_routers() -> Router:

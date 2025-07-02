@@ -6,7 +6,7 @@ from datetime import datetime
 import httpx
 
 from config_reader import config, user_subscriptions
-from data.festival_schedule import get_current_performance, FESTIVAL_PROGRAM
+from data.festival_schedule import get_current_performance, FESTIVAL_PROGRAM, FESTIVAL_OVER_TEXT
 
 router = Router()
 markup = (
@@ -17,11 +17,14 @@ markup = (
 @router.message(CommandStart())
 async def start(message: Message) -> None:
     current_time_info = get_current_performance(datetime.now())
-    schedule_text = (
-        f"📅 Расписание фестиваля:\n"
-        f"{current_time_info}\n\n"
-        "Если у вас есть вопросы, пишите в любое время, и я отвечу, как только смогу!"
-    )
+    if current_time_info == FESTIVAL_OVER_TEXT:
+        schedule_text = f"{FESTIVAL_OVER_TEXT}\n\nСпасибо, что были с нами! Следите за новостями."
+    else:
+        schedule_text = (
+            f"📅 Расписание фестиваля:\n"
+            f"{current_time_info}\n\n"
+            "Если у вас есть вопросы, пишите в любое время, и я отвечу, как только смогу!"
+        )
     await message.answer(
         f"Привет, {message.from_user.first_name}!\n\n"
         f"{schedule_text}",

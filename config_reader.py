@@ -10,7 +10,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 from fastapi import FastAPI
 
-from data.festival_schedule import FESTIVAL_PROGRAM
+from data.festival_schedule import FESTIVAL_PROGRAM, FESTIVAL_OVER_TEXT
 
 # Временное хранилище для подписок: {user_id: [(group_name1, interval_minutes1), (group_name2, interval_minutes2), ...]}
 user_subscriptions: dict[int, list[tuple[str, int]]] = {}
@@ -73,10 +73,12 @@ async def notification_scheduler():
                                 except Exception as e:
                                     pass # print(f"Ошибка при отправке уведомления пользователю {user_id}: {e}") # Закомментировано для удаления логов
                     elif now >= event_datetime + timedelta(minutes=10): # Например, через 10 минут после окончания
-                        # Если событие прошло, можно удалить подписку или просто перестать уведомлять
-                        # Для простоты, здесь просто перестаем уведомлять.
-                        # Если нужно автоматическое удаление, потребуется более сложная логика,
-                        # чтобы избежать изменения списка во время итерации.
+                        # Если событие прошло, отправляем сообщение о завершении фестиваля
+                        try:
+                            await bot.send_message(chat_id=user_id, text=FESTIVAL_OVER_TEXT)
+                        except Exception as e:
+                            pass
+                        # После этого можно удалить подписку или оставить как есть
                         pass
         
         await asyncio.sleep(60) # Проверяем расписание каждую минуту (возвращено с 1 секунды)

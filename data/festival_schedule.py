@@ -17,6 +17,8 @@ FESTIVAL_PROGRAM = [
     {"date": date(2025, 6, 28), "time": "22:40", "description": "DJ CLOUD X"},
 ]
 
+FESTIVAL_OVER_TEXT = "Фестиваль окончен! Ждём вас в следующем году."
+
 def get_current_performance(current_dt: datetime) -> str:
     """
     Определяет, какое выступление идет в данный момент, или следующее.
@@ -49,7 +51,7 @@ def get_current_performance(current_dt: datetime) -> str:
     if next_performance:
         return f"Следующее выступление: {next_performance['description']} ({next_performance['date'].strftime('%d.%m')}) в {next_performance['time']}"
     else:
-        return "На сегодня выступления закончились."
+        return FESTIVAL_OVER_TEXT
 
 if __name__ == "__main__":
     # Пример использования
