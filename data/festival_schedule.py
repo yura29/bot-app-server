@@ -3,18 +3,18 @@ from datetime import datetime, time, date
 # Расписание фестиваля (дата, время начала и описание)
 # Теперь события включают дату, установленную на 28 июня 2025 года, для последующей динамической обработки
 FESTIVAL_PROGRAM = [
-    {"date": date(2025, 6, 28), "time": "10:00", "description": "Бард-акустическая программа"},
-    {"date": date(2025, 6, 28), "time": "12:00", "description": "FROSTSKOLD"},
-    {"date": date(2025, 6, 28), "time": "13:00", "description": "SPIRITUS BROTHERS"},
-    {"date": date(2025, 6, 28), "time": "14:00", "description": "KINKY DEP"},
-    {"date": date(2025, 6, 28), "time": "15:00", "description": "DREAD HAIR"},
-    {"date": date(2025, 6, 28), "time": "16:00", "description": "BOOMERANG PROJECT"},
-    {"date": date(2025, 6, 28), "time": "17:00", "description": "I.C.WIENER"},
-    {"date": date(2025, 6, 28), "time": "18:10", "description": "НЕВСКИЙ ПРОСПЕКТ (трибют гр. «Ленинград»)"},
-    {"date": date(2025, 6, 28), "time": "20:10", "description": "IZNUTRI"},
-    {"date": date(2025, 6, 28), "time": "21:00", "description": "WHISKY BAR"},
-    {"date": date(2025, 6, 28), "time": "22:00", "description": "ОБЫЧНЫЕ ЛЮДИ"},
-    {"date": date(2025, 6, 28), "time": "22:40", "description": "DJ CLOUD X"},
+    {"date": date(2024, 6, 28), "time": "10:00", "description": "Бард-акустическая программа"},
+    {"date": date(2024, 6, 28), "time": "12:00", "description": "FROSTSKOLD"},
+    {"date": date(2024, 6, 28), "time": "13:00", "description": "SPIRITUS BROTHERS"},
+    {"date": date(2024, 6, 28), "time": "14:00", "description": "KINKY DEP"},
+    {"date": date(2024, 6, 28), "time": "15:00", "description": "DREAD HAIR"},
+    {"date": date(2024, 6, 28), "time": "16:00", "description": "BOOMERANG PROJECT"},
+    {"date": date(2024, 6, 28), "time": "17:00", "description": "I.C.WIENER"},
+    {"date": date(2024, 6, 28), "time": "18:10", "description": "НЕВСКИЙ ПРОСПЕКТ (трибют гр. «Ленинград»)"},
+    {"date": date(2024, 6, 28), "time": "20:10", "description": "IZNUTRI"},
+    {"date": date(2024, 6, 28), "time": "21:00", "description": "WHISKY BAR"},
+    {"date": date(2024, 6, 28), "time": "22:00", "description": "ОБЫЧНЫЕ ЛЮДИ"},
+    {"date": date(2024, 6, 28), "time": "22:40", "description": "DJ CLOUD X"},
 ]
 
 FESTIVAL_OVER_TEXT = "Фестиваль окончен! Ждём вас в следующем году."

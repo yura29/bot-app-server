@@ -36,6 +36,7 @@ class Config(BaseSettings):
 
 # Глобальное хранилище для отслеживания отправленных уведомлений
 sent_notifications = set() # (user_id, group_name, hour, minute) for each sent notification
+festival_over_notifications = set() # (user_id, group_name) для уведомлений о завершении фестиваля
 
 async def notification_scheduler():
     while True:
@@ -73,11 +74,14 @@ async def notification_scheduler():
                                 except Exception as e:
                                     pass # print(f"Ошибка при отправке уведомления пользователю {user_id}: {e}") # Закомментировано для удаления логов
                     elif now >= event_datetime + timedelta(minutes=10): # Например, через 10 минут после окончания
-                        # Если событие прошло, отправляем сообщение о завершении фестиваля
-                        try:
-                            await bot.send_message(chat_id=user_id, text=FESTIVAL_OVER_TEXT)
-                        except Exception as e:
-                            pass
+                        # Если событие прошло, отправляем сообщение о завершении фестиваля только один раз
+                        festival_over_id = (user_id, group_name)
+                        if festival_over_id not in festival_over_notifications:
+                            try:
+                                await bot.send_message(chat_id=user_id, text=FESTIVAL_OVER_TEXT)
+                                festival_over_notifications.add(festival_over_id)
+                            except Exception as e:
+                                pass
                         # После этого можно удалить подписку или оставить как есть
                         pass
         
